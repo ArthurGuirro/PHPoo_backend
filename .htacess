@@ -1,0 +1,16 @@
+# CONFIGURAÇÕES DO APACHE
+
+DirectoryIndex index.php
+
+# Ativar modo de reescrita
+RewriteEngine On
+
+# Definir url base
+RewriteBase /phpoo_routes/
+
+# Permitir reescritas de url
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Definição de uma regra 
+RewriteRule ^(.*)$ index.php/$1 [NC,L,QSA]
