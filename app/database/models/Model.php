@@ -10,8 +10,10 @@ use PDOException;
 abstract class Model
 {
     private string $fields = '*';
-    private string $filters = '';
+    private ?Filters $filters;
     private string $pagination = '';
+
+    protected string $table;
 
     public function setFields($fields)
     {
@@ -20,13 +22,18 @@ abstract class Model
 
     public function setFilters(Filters $filters)
     {
-        $this->filters = $filters->dump();
+        $this->filters = $filters;
+        // var_dump($this->filters);
     }
 
     public function setPagination (Pagination $pagination)
     {
+        // var_dump($this->count());
+        // dd($this->count());
         $pagination -> setTotalItems($this->count());
+        
         $this->pagination = $pagination->dump();
+        
     }
 
     public function create(array $data)
@@ -41,10 +48,10 @@ abstract class Model
             $prepare = $connection->prepare($sql);
             return $prepare->execute($data);
 
-            //dd($sql);
+            //var_dump($sql);
 
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -68,7 +75,7 @@ abstract class Model
             return $prepare->execute($data);
             
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -76,18 +83,20 @@ abstract class Model
     {
         try {
             $table = $this->getTable();
-            $sql = "select {$this->fields} from {$table} {$this->filters} {$this->pagination}";
-
+            $sql = "select {$this->fields} from {$table} {$this->filters?->dump()} {$this->pagination}";
+            
             $connection = Connection::connect();
+        
+            $prepare = $connection->prepare($sql);
 
-            $query = $connection->query($sql);
+            $prepare->execute($this->filters ? $this->filters->getBind() : []);
 
-            //dd($query);
+            //var_dump($prepare);
 
-            return $query->fetchAll(PDO::FETCH_CLASS, get_called_class());
+            return $prepare->fetchAll(PDO::FETCH_CLASS);
 
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
     abstract protected function getTable(): string;
@@ -98,16 +107,16 @@ abstract class Model
             $table = $this->getTable();
             $sql = (empty($this->filters)) ?
                 "select {$this->fields} from {$table} where {$field} = :{$field}" :
-                "select {$this->fields} from {$table} {$this->filters}";
+                "select {$this->fields} from {$table} {$this->filters?->dump()}";           //se der ruim, voltar no 13:20
 
             $connection = Connection::connect(); 
             $prepare = $connection->prepare($sql);
-            $prepare->execute(!$this->filters ? [$field=>$value] : []);
+            $prepare->execute($this->filters ? $this->filters->getBind() : [$field=>$value]);
 
-            return $prepare->fetchObject(get_called_class());
+            return $prepare->fetchObject();
             
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -120,10 +129,10 @@ abstract class Model
             $connection = Connection::connect(); 
             $query = $connection->query($sql);
 
-            return $query->fetchObject(get_called_class());
+            return $query->fetchObject();
 
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -135,14 +144,14 @@ abstract class Model
             "delete from {$table} {$this->filters}" :
             "delete from {$table} where {$field} = :{$field}" ;
 
-            //dd($sql);
+            //var_dump($sql);
 
             $connection = Connection::connect(); 
             $prepare = $connection->prepare($sql);
-            return $prepare->execute(($this->filters) ? [$field=>$value] : []); 
+            return $prepare->execute(empty($this->filters) ? [$field=>$value] : $this->filters->getBind()); 
             
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -150,15 +159,18 @@ abstract class Model
     {
         try {
             $table = $this->getTable();
-            $sql = "select {$this->fields} from {$table} {$this->filters}";
+            $sql = "select {$this->fields} from {$table} {$this->filters?->dump()}";
 
             $connection = Connection::connect(); 
-            $query = $connection->query($sql);
 
-            return $query->rowCount();
+            // dd($connection);
+            $prepare = $connection->prepare($sql);
+            $prepare->execute($this->filters ? $this->filters->getBind() : []);
+
+            return $prepare->rowCount();
 
         } catch (PDOException $e) {
-            dd($e->getMessage());
+            var_dump($e->getMessage()); 
         }
     }
 }

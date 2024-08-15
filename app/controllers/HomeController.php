@@ -17,20 +17,22 @@ class HomeController extends Controller
 
         $filters = new Filters;
         $filters->where('users.id', '>', 1);
-        // $filters->join('posts', 'users.id', '=', 'posts.userId', 'left join');
+        $filters->join('posts', 'users.id', '=', 'posts.userId', 'left join');
+        // dd($filters);
 
         $pagination = new Pagination;
         $pagination->setItemsPerPage(1);
         
         $user = new User;
-        $user->setFields('users.id,firstName,lastName');
+        $user->setFields('users.id,firstName,lastName, posts.title');
         $user->setFilters($filters);
         $user->setPagination($pagination);
-        $usersFound = $user->fetchAll();
+        $usersFound = $user->fetchAll();       //15:27
 
         // dd($usersFound);
-
+    
         $this->view('home', ['title' => 'Home', 'users' => $usersFound, 'pagination' => $pagination]);//error 12:50
+       
     }
 }
 

@@ -26,16 +26,16 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em se
 
 1. Clone o repositório:
 
-   \`\`\`bash
+   ~~~bash
    git clone https://github.com/ArthurGuirro/PHPoo_backend.git
    cd PHPoo_backend
-   \`\`\`
+   ~~~
 
 2. Instale as dependências do projeto com o Composer:
 
-   \`\`\`bash
+   ~~~bash
    composer install
-   \`\`\`
+   ~~~
 
    > **Nota:** Se houver alguma modificação no `composer.json`, execute o comando `composer dump-autoload` para atualizar o autoloader.
 
@@ -43,17 +43,17 @@ Antes de iniciar, certifique-se de ter as seguintes ferramentas instaladas em se
 
 1. Inicie o servidor PHP:
 
-   \`\`\`bash
+   ~~~bash
    php -S localhost:5000 -t public
-   \`\`\`
+   ~~~
 
    > **Importante:** Se você estiver rodando a aplicação em um ambiente Docker, troque as rotas e qualquer referência ao caminho `/phpoo_routes` para refletir a estrutura no Docker.
 
 2. Acesse a aplicação no navegador:
 
-   \`\`\`
+   ~~~
    http://localhost:5000
-   \`\`\`
+   ~~~
 
 ## Gerenciamento de Banco de Dados
 
